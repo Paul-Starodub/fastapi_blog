@@ -828,9 +828,7 @@ async def post_page(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(models.Post)
-        .options(selectinload(models.Post.author))
-        .where(models.Post.id == post_id),
+        select(models.Post).options(selectinload(models.Post.author)).where(models.Post.id == post_id),
     )
     post = result.scalars().first()
     if post:
@@ -870,6 +868,16 @@ async def user_posts_page(
     )
 
 
+@app.get("/login/", include_in_schema=False)
+async def login_page(request: Request):
+    return templates.TemplateResponse(request, "login.html", {"title": "Login"})
+
+
+@app.get("/register/", include_in_schema=False)
+async def register_page(request: Request):
+    return templates.TemplateResponse(request, "register.html", {"title": "Register"})
+
+
 @app.exception_handler(StarletteHTTPException)
 async def general_http_exception_handler(
     request: Request,
@@ -878,11 +886,7 @@ async def general_http_exception_handler(
     if request.url.path.startswith("/api"):
         return await http_exception_handler(request, exception)
 
-    message = (
-        exception.detail
-        if exception.detail
-        else "An error occurred. Please check your request and try again."
-    )
+    message = exception.detail if exception.detail else "An error occurred. Please check your request and try again."
 
     return templates.TemplateResponse(
         request,
