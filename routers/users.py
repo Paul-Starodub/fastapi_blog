@@ -10,11 +10,7 @@ from schemas import PostResponse, UserCreate, UserResponse, UserUpdate
 router = APIRouter()
 
 
-@router.post(
-    "/",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
-)
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_db)]):
     result = await db.execute(
         select(models.User).where(models.User.username == user.username),
@@ -25,7 +21,6 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already exists",
         )
-
     result = await db.execute(
         select(models.User).where(models.User.email == user.email),
     )
@@ -35,7 +30,6 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
-
     new_user = models.User(
         username=user.username,
         email=user.email,
@@ -67,7 +61,8 @@ async def get_user_posts(user_id: int, db: Annotated[AsyncSession, Depends(get_d
     result = await db.execute(
         select(models.Post)
         .options(selectinload(models.Post.author))
-        .where(models.Post.user_id == user_id),
+        .where(models.Post.user_id == user_id)
+        .order_by(models.Post.date_posted.desc()),
     )
     posts = result.scalars().all()
     return posts
@@ -106,14 +101,12 @@ async def update_user(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Email already registered",
             )
-
     if user_update.username is not None:
         user.username = user_update.username
     if user_update.email is not None:
         user.email = user_update.email
     if user_update.image_file is not None:
         user.image_file = user_update.image_file
-
     await db.commit()
     await db.refresh(user)
     return user
@@ -128,6 +121,5 @@ async def delete_user(user_id: int, db: Annotated[AsyncSession, Depends(get_db)]
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-
     await db.delete(user)
     await db.commit()
