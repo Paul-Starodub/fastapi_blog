@@ -1,13 +1,11 @@
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
-
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 import models
 from config import settings
 from database import get_db
@@ -69,7 +67,6 @@ async def get_current_user(
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     try:
         user_id_int = int(user_id)
     except (TypeError, ValueError):
@@ -78,7 +75,6 @@ async def get_current_user(
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     result = await db.execute(
         select(models.User).where(models.User.id == user_id_int),
     )
