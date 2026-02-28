@@ -48,7 +48,6 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
-
     new_user = models.User(
         username=user.username,
         email=user.email.lower(),
@@ -199,7 +198,6 @@ async def delete_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to delete this user",
         )
-
     result = await db.execute(select(models.User).where(models.User.id == user_id))
     user = result.scalars().first()
     if not user:
@@ -207,6 +205,5 @@ async def delete_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-
     await db.delete(user)
     await db.commit()
