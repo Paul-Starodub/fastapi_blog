@@ -22,8 +22,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 # )
 from typing import Annotated
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import select
+from sqlalchemy import select, func
 import models
+from config import settings
 from database import Base, engine, get_db
 from routers import posts, users
 
@@ -808,16 +809,30 @@ app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 
 
 @app.get("/", include_in_schema=False, name="home")
-@app.get("/posts/", include_in_schema=False, name="posts")
+@app.get("/posts", include_in_schema=False, name="posts")
 async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
+    count_result = await db.execute(select(func.count()).select_from(models.Post))
+    total = count_result.scalar() or 0
+
     result = await db.execute(
-        select(models.Post).options(selectinload(models.Post.author)),
+        select(models.Post)
+        .options(selectinload(models.Post.author))
+        .order_by(models.Post.date_posted.desc())
+        .limit(settings.posts_per_page),
     )
     posts = result.scalars().all()
+
+    has_more = len(posts) < total
+
     return templates.TemplateResponse(
         request,
         "home.html",
-        {"posts": posts, "title": "Home"},
+        {
+            "posts": posts,
+            "title": "Home",
+            "limit": settings.posts_per_page,
+            "has_more": has_more,
+        },
     )
 
 
