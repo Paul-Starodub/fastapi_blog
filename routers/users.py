@@ -14,7 +14,15 @@ from auth import CurrentUser, create_access_token, hash_password, verify_passwor
 from config import settings
 from database import get_db
 from image_utils import process_profile_image, delete_profile_image
-from schemas import PostResponse, Token, UserCreate, UserPrivate, UserPublic, UserUpdate, PaginatedPostsResponse
+from schemas import (
+    PostResponse,
+    Token,
+    UserCreate,
+    UserPrivate,
+    UserPublic,
+    UserUpdate,
+    PaginatedPostsResponse,
+)
 
 router = APIRouter()
 
@@ -36,7 +44,6 @@ async def create_user(user: UserCreate, db: Annotated[AsyncSession, Depends(get_
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already exists",
         )
-
     result = await db.execute(
         select(models.User).where(func.lower(models.User.email) == user.email.lower()),
     )
@@ -118,7 +125,9 @@ async def get_user_posts(
             detail="User not found",
         )
     count_result = await db.execute(
-        select(func.count()).select_from(models.Post).where(models.Post.user_id == user_id),
+        select(func.count())
+        .select_from(models.Post)
+        .where(models.Post.user_id == user_id),
     )
     total = count_result.scalar() or 0
     result = await db.execute(
@@ -160,7 +169,10 @@ async def update_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
-    if user_update.username is not None and user_update.username.lower() != user.username.lower():
+    if (
+        user_update.username is not None
+        and user_update.username.lower() != user.username.lower()
+    ):
         result = await db.execute(
             select(models.User).where(
                 func.lower(models.User.username) == user_update.username.lower(),
@@ -172,7 +184,10 @@ async def update_user(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Username already exists",
             )
-    if user_update.email is not None and user_update.email.lower() != user.email.lower():
+    if (
+        user_update.email is not None
+        and user_update.email.lower() != user.email.lower()
+    ):
         result = await db.execute(
             select(models.User).where(
                 func.lower(models.User.email) == user_update.email.lower(),
