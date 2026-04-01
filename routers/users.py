@@ -145,9 +145,7 @@ async def forgot_password(
             minutes=settings.reset_token_expire_minutes
         )
         reset_token = models.PasswordResetToken(
-            user_id=user.id,
-            token_hash=token_hash,
-            expires_at=expires_at
+            user_id=user.id, token_hash=token_hash, expires_at=expires_at
         )
         db.add(reset_token)
         await db.commit()
@@ -155,7 +153,7 @@ async def forgot_password(
             send_password_reset_email,
             to_email=user.email,
             username=user.username,
-            token=token
+            token=token,
         )
     return {
         "message": "If an account exists with this email, you will receive password reset instructions."
@@ -177,7 +175,7 @@ async def reset_password(
     if not reset_token:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired reset token"
+            detail="Invalid or expired reset token",
         )
     if reset_token.expires_at.replace(tzinfo=UTC) < datetime.now(UTC):
         await db.delete(reset_token)
@@ -216,7 +214,7 @@ async def change_password(
     if not verify_password(password_data.current_password, current_user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Current password is incorrect"
+            detail="Current password is incorrect",
         )
     current_user.password_hash = hash_password(password_data.new_password)
     await db.execute(
