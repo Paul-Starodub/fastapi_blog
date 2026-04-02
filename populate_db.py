@@ -15,7 +15,7 @@ POPULATE_IMAGES_DIR = Path("populate_images")
 USERS = [
     {
         "username": "CoreyMSchafer",
-        "email": "CoreyMSchafer@gmail.com",
+        "email": "amorallex@gmail.com",
         "password": "TestPassword1!",
         "image": "corey.png",
     },
