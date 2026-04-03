@@ -25,6 +25,8 @@ markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
 pillow==12.1.1
+psycopg==3.3.3
+psycopg-binary==3.3.3
 pwdlib==0.3.0
 pycparser==3.0
 pydantic==2.12.5
