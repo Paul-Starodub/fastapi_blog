@@ -809,7 +809,7 @@ app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 
 
 @app.get("/", include_in_schema=False, name="home")
-@app.get("/posts", include_in_schema=False, name="posts")
+@app.get("/posts/", include_in_schema=False, name="posts")
 async def home(request: Request, db: Annotated[AsyncSession, Depends(get_db)]):
     count_result = await db.execute(select(func.count()).select_from(models.Post))
     total = count_result.scalar() or 0
@@ -851,14 +851,12 @@ async def post_page(
     if post:
         title = post.title[:50]
         return templates.TemplateResponse(
-            request,
-            "post.html",
-            {"post": post, "title": title},
+            request, "post.html", {"post": post, "title": title}
         )
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
 
-@app.get("/users/{user_id}/posts", include_in_schema=False, name="user_posts")
+@app.get("/users/{user_id}/posts/", include_in_schema=False, name="user_posts")
 async def user_posts_page(
     request: Request,
     user_id: int,
@@ -913,9 +911,25 @@ async def register_page(request: Request):
     return templates.TemplateResponse(request, "register.html", {"title": "Register"})
 
 
-@app.get("/account", include_in_schema=False)
+@app.get("/account/", include_in_schema=False)
 async def account_page(request: Request):
     return templates.TemplateResponse(request, "account.html", {"title": "Account"})
+
+
+@app.get("/forgot-password/", include_in_schema=False)
+async def forgot_password_page(request: Request):
+    return templates.TemplateResponse(
+        request, "forgot_password.html", {"title": "Forgot Password"}
+    )
+
+
+@app.get("/reset-password/", include_in_schema=False)
+async def reset_password_page(request: Request):
+    response = templates.TemplateResponse(
+        request, "reset_password.html", {"title": "Reset Password"}
+    )
+    response.headers["Referrer-Policy"] = "no-referrer"
+    return response
 
 
 @app.exception_handler(StarletteHTTPException)
