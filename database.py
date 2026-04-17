@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from config import settings
 
 
 class Base(DeclarativeBase):
@@ -8,14 +9,17 @@ class Base(DeclarativeBase):
 
 
 ######## async version sqlite ##########
-SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./blog.db"
+# SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./blog.db"
+#
+#
+# engine = create_async_engine(
+#     SQLALCHEMY_DATABASE_URL,
+#     connect_args={"check_same_thread": False},
+#     echo=True,  # for debugging
+# )
 
-
-engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    echo=True,  # for debugging
-)
+###### async version postgresql ##########
+engine = create_async_engine(settings.database_url)
 
 AsyncSessionLocal = async_sessionmaker(
     bind=engine, class_=AsyncSession, expire_on_commit=False

@@ -31,22 +31,24 @@ from routers import posts, users
 
 # Base.metadata.create_all(bind=engine)
 
+#
+# @asynccontextmanager  # used without alembic
+# async def lifespan(_app: FastAPI):
+#     # Startup
+#     async with engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all)
+#     yield
+#     # Shutdown
+#     await engine.dispose()
+#
+#
+# app = FastAPI(lifespan=lifespan)
 
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    # Startup
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-    # Shutdown
-    await engine.dispose()
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/media", StaticFiles(directory="media"), name="media")
+# app.mount("/media", StaticFiles(directory="media"), name="media")  # uncomment to use local storage instead of S3
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
