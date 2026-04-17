@@ -48,7 +48,7 @@ app = FastAPI()
 
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/media", StaticFiles(directory="media"), name="media")
+# app.mount("/media", StaticFiles(directory="media"), name="media")  # uncomment to use local storage instead of S3
 
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
