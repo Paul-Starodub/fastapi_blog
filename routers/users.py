@@ -367,7 +367,7 @@ async def update_user(
 
 
 # for S3 storage
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{user_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: int,
     current_user: CurrentUser,
@@ -427,7 +427,7 @@ async def delete_user(
 #     return current_user
 
 
-@router.patch("/{user_id}/picture", response_model=UserPrivate)
+@router.patch("/{user_id}/picture/", response_model=UserPrivate)
 async def upload_profile_picture(
     user_id: int,
     file: UploadFile,
@@ -497,7 +497,7 @@ async def upload_profile_picture(
 
 
 # for S3 storage
-@router.delete("/{user_id}/picture", response_model=UserPrivate)
+@router.delete("/{user_id}/picture/", response_model=UserPrivate)
 async def delete_user_picture(
     user_id: int,
     current_user: CurrentUser,
