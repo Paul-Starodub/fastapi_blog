@@ -22,7 +22,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 # )
 from typing import Annotated
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import select, func
+from sqlalchemy import select, func, text
 import models
 from config import settings
 from database import Base, engine, get_db
@@ -808,6 +808,18 @@ app.include_router(posts.router, prefix="/api/posts", tags=["posts"])
 #         },
 #         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
 #     )
+
+
+@app.get("/health/")
+async def health_check(db: Annotated[AsyncSession, Depends(get_db)]):
+    try:
+        await db.execute(text("SELECT 1"))
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        ) from exc
+    return {"status": "healthy"}
 
 
 @app.get("/", include_in_schema=False, name="home")
